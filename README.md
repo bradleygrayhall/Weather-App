@@ -19,19 +19,21 @@ A Python-based backend utility designed to help track barometric pressure change
 ## Setup
 
 1. **Clone the repository**:
+
    ```bash
    git clone <your-repo-url>
    cd <repo-name>
 2. **Install dependencies**:
+   ```
    pip install -r requirements.txt
+3. **Configure Environmental Variables**:
 
-3. ** Configure Environmental Variables**:
-   ```Create a .env file in the root directory and add your credentials:
-   WEATHER_API_KEY=your_openweathermap_key
+   Create a .env file in the root directory and add your credentials:
+   ```WEATHER_API_KEY=your_openweathermap_key
    TWILIO_ACCOUNT_SID=your_twilio_sid
    TWILIO_AUTH_TOKEN=your_twilio_auth_token
    TWILIO_PHONE_NUMBER=your_twilio_number
    MY_PERSONAL_NUMBER=your_actual_phone_number
-
 4. **Run the script**:
+   ```
    python main.py
