@@ -2,6 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from twilio.rest import Client
+import logging
 
 load_dotenv()
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
@@ -9,6 +10,13 @@ auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 twilio_num = os.getenv("TWILIO_PHONE_NUMBER")
 my_cell = os.getenv("MY_PERSONAL_NUMBER")
 api_key = os.getenv("WEATHER_API_KEY")
+
+
+logging.basicConfig(
+    filename='migraine_tracker.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 
 def send_sms(message_body):
@@ -21,29 +29,32 @@ def send_sms(message_body):
     return message.sid
 
 def main():
-    city = input("What city do you want to request data from?: ")
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+    cities = ["Toronto","Ottawa"]
+    for city in cities:
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
 
-    response = requests.get(url)
+        response = requests.get(url)
 
-    try:
-        with open("pressure.txt","r") as f:
-            old_pressure = float(f.read())
-    except FileNotFoundError:
-        old_pressure = None
+        try:
+            with open(f"{city}_pressure.txt","r") as f:
+                old_pressure = float(f.read())
+        except FileNotFoundError:
+            old_pressure = None
+    
+        if response.status_code == 200:
+            logging.info(f"Successfully fetched data for {city}")
+            data = response.json()
+            current_pressure = data["main"]["pressure"]
+            print(f"The current pressure is: {current_pressure} hPa")
+            with open(f"{city}_pressure.txt","w") as f:
+                f.write(str(current_pressure))
+            if old_pressure is not None:
+                delta_p = abs(current_pressure-old_pressure)
+                if delta_p >= 5:
+                    send_sms(f"Alert! Pressure changed by {delta_p} hPa.")
 
-    if response.status_code == 200:
-        data = response.json()
-        current_pressure = data["main"]["pressure"]
-        print(f"The current pressure is: {current_pressure} hPa")
-        with open("pressure.txt","w") as f:
-            f.write(str(current_pressure))
-        if old_pressure is not None:
-            delta_p = abs(current_pressure-old_pressure)
-            if delta_p >= 5:
-                send_sms(f"Alert! Pressure changed by {delta_p} hPa.")
-
-    else:
-        print("Error fetching data")
+        else:
+            error_msg = response.json().get("message","Unknown Error")
+            logging.error(f"Failed for {city}: {error_msg}")
 
 main()
