@@ -23,7 +23,7 @@ A Python-based backend utility designed to help track barometric pressure change
    git clone <your-repo-url>
    cd <repo-name>
 2. **Install dependencies**:
-   ```pip install -r requirements.txt
+   pip install -r requirements.txt
 
 3. ** Configure Environmental Variables**:
    ```Create a .env file in the root directory and add your credentials:
@@ -34,4 +34,4 @@ A Python-based backend utility designed to help track barometric pressure change
    MY_PERSONAL_NUMBER=your_actual_phone_number
 
 4. **Run the script**:
-   ```python main.py
+   python main.py
